@@ -162,11 +162,14 @@ class ApiClient {
   }
 
   // Bookmark methods
-  async getBookmarkStatus(blogId: string) {
+  async getBookmarkStatus(blogId: string): Promise<ApiResponse<{ isBookmarked: boolean }>> {
     return this.get(`/blogs/${blogId}/bookmark`)
   }
 
-  async toggleBookmark(blogId: string, isCurrentlyBookmarked: boolean) {
+  async toggleBookmark(
+    blogId: string,
+    isCurrentlyBookmarked: boolean
+  ): Promise<ApiResponse<{ isBookmarked: boolean }>> {
     if (isCurrentlyBookmarked) {
       return this.delete(`/blogs/${blogId}/bookmark`)
     } else {
