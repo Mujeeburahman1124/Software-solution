@@ -93,6 +93,10 @@ class ApiClient {
   // Auth methods
   async signup(name: string, email: string, password: string) {
     const response = await this.post('/auth/signup', { name, email, password })
+    if (response.token) {
+      storage.set('token', response.token)
+      storage.set('user', response.user)
+    }
     return response
   }
 

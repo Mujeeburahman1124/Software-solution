@@ -7,6 +7,9 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import { apiClient } from '@/lib/api-client'
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
+
 export default function SignupPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -38,13 +41,13 @@ export default function SignupPage() {
         setLoading(false)
         return
       }
-      if (!formData.email.includes('@')) {
-        setError('Please enter a valid email')
+      if (!EMAIL_REGEX.test(formData.email)) {
+        setError('Please enter a valid email address')
         setLoading(false)
         return
       }
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters')
+      if (!PASSWORD_REGEX.test(formData.password)) {
+        setError('Password must be at least 8 characters and include one uppercase letter, one lowercase letter, and one number')
         setLoading(false)
         return
       }
@@ -60,14 +63,14 @@ export default function SignupPage() {
         formData.password
       )
 
-      if (response) {
-        // Redirect to login
+      if (response?.success) {
         router.push('/auth/login?registered=true')
+      } else {
+        setError(response?.message || 'Signup failed')
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed'
       setError(message)
-      console.error('Signup error:', err)
     } finally {
       setLoading(false)
     }
