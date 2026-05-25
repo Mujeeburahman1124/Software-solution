@@ -55,7 +55,11 @@ export function useMutation<T>(
   error: string | null
   data: T | null
 } {
-  const [state, setState] = useState({
+  const [state, setState] = useState<{
+    loading: boolean
+    error: string | null
+    data: T | null
+  }>({
     loading: false,
     error: null,
     data: null,

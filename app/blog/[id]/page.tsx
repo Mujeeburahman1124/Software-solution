@@ -84,7 +84,7 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
 
   const fetchBookmarkStatus = async () => {
     try {
-      const res = await apiClient.getBookmarkStatus(params.id) as any
+      const res = await apiClient.getBookmarkStatus(params.id)
       setIsBookmarked(res.isBookmarked ?? false)
     } catch (err) {
       console.error('Error fetching bookmark status:', err)

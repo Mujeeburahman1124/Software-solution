@@ -12,6 +12,9 @@ interface ApiResponse<T> {
   blog?: T
   blogs?: T[]
   id?: string
+  comments?: any[]
+  comment?: any
+  isBookmarked?: boolean
 }
 
 class ApiClient {
