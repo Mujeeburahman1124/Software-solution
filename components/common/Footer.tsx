@@ -20,17 +20,17 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-gray-300 text-sm">
               <li><Link href="/" className="hover:text-white">Home</Link></li>
-              <li><Link href="/blogs" className="hover:text-white">Blogs</Link></li>
-              <li><Link href="/categories" className="hover:text-white">Categories</Link></li>
+              <li><Link href="/create" className="hover:text-white">Write</Link></li>
+              <li><Link href="/saved" className="hover:text-white">Saved</Link></li>
+              <li><Link href="/admin" className="hover:text-white">Dashboard</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">Account</h4>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-              <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+              <li><Link href="/auth/login" className="hover:text-white">Login</Link></li>
+              <li><Link href="/auth/signup" className="hover:text-white">Sign Up</Link></li>
             </ul>
           </div>
 

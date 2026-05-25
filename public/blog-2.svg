@@ -1,0 +1,15 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="30" fill="url(#grad2)" />
+  <path d="M240 220C260 160 310 130 360 130H740C790 130 840 160 860 220V410C840 470 790 500 740 500H360C310 500 260 470 240 410V220Z" fill="#fff" fill-opacity="0.12" />
+  <g fill="#fff" font-family="Inter, Arial, sans-serif">
+    <text x="80" y="220" font-size="60" font-weight="700">She Blog</text>
+    <text x="80" y="300" font-size="36" font-weight="500">Create, publish, and grow</text>
+    <text x="80" y="400" font-size="28" fill="#CCFBF1">Development • Design • Business</text>
+  </g>
+</svg>

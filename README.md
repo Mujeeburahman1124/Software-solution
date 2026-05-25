@@ -1,6 +1,8 @@
 # 📝 Blog Website System - Full Stack Web Application
 
 > A professional, production-ready blog platform built by a Full Stack Developer Intern at She Software Solutions. This internship assessment project demonstrates real-world development skills using modern web technologies and industry best practices.
+>
+> See `PROJECT_DOCUMENTATION.md` for a complete feature breakdown, deployment details, and implementation summary.
 
 **🌐 Live Application:** [blogs.shesoftwaresolutions.com](https://blogs.shesoftwaresolutions.com)  
 **📦 Repository:** [GitHub - She Blog Platform](https://github.com/shesoftwaresolutions/blog-website)  
@@ -346,16 +348,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Test User Accounts
 
-After running `npm run db:setup`, you can use these test accounts:
+After running `npm run db:setup`, you can use these seeded test accounts:
 
 ```
 Admin Account:
-Email: admin@blog.com
-Password: Admin123
+Email: admin@sheblog.com
+Password: Admin1234
 
-Regular User:
-Email: user@blog.com
-Password: User123
+Demo Account:
+Email: demo@example.com
+Password: demo12345
 ```
 
 ## � API Documentation
@@ -702,10 +704,12 @@ git push origin main
 
 3. **Configure Environment Variables**
    - In Vercel dashboard: Project → Settings → Environment Variables
-   - Add all variables from `.env.local`:
+   - Add the required variables for production:
      - `DATABASE_URL` - Production PostgreSQL connection
      - `JWT_SECRET` - Your JWT secret
-     - `NEXTAUTH_SECRET` - NextAuth secret
+     - `NEXT_PUBLIC_APP_URL` - Your deployed site URL
+   - Optional variables (only if you are using NextAuth or additional integrations):
+     - `NEXTAUTH_SECRET`
 
 4. **Set Custom Domain** (Optional)
    - In Vercel dashboard: Domains → Add Domain

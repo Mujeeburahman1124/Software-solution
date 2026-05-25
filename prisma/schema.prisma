@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model User {
+  id          String          @id @default(uuid())
+  email       String          @unique
+  password    String
+  name        String
+  role        Role            @default(USER)
+  blogs       Blog[]
+  bookmarks   Bookmark[]
+  comments    Comment[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  blogs       Blog[]
+  createdAt   DateTime @default(now())
+}
+
+model Blog {
+  id          String          @id @default(uuid())
+  title       String
+  content     String
+  excerpt     String?
+  coverImage  String?
+  author      User            @relation(fields: [authorId], references: [id])
+  authorId    String
+  category    Category?       @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  tags        String[]        @default([])
+  views       Int             @default(0)
+  published   Boolean         @default(false)
+  likes       Int             @default(0)
+  loves       Int             @default(0)
+  claps       Int             @default(0)
+  fires       Int             @default(0)
+  media       Media[]
+  bookmarks   Bookmark[]
+  comments    Comment[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Media {
+  id          String     @id @default(uuid())
+  type        MediaType
+  url         String
+  blog        Blog       @relation(fields: [blogId], references: [id])
+  blogId      String
+  createdAt   DateTime   @default(now())
+}
+
+model Comment {
+  id          String     @id @default(uuid())
+  blog        Blog       @relation(fields: [blogId], references: [id])
+  blogId      String
+  authorName  String
+  content     String
+  createdAt   DateTime   @default(now())
+}
+
+model Bookmark {
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  blog        Blog       @relation(fields: [blogId], references: [id])
+  blogId      String
+  createdAt   DateTime   @default(now())
+  @@id([userId, blogId])
+}
+
+model NewsletterSubscription {
+  id          String     @id @default(uuid())
+  email       String     @unique
+  subscribed  Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+}

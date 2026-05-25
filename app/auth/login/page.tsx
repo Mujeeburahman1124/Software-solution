@@ -118,6 +118,7 @@ export default function LoginPage() {
             <p className="font-semibold mb-2">📝 Demo Credentials:</p>
             <p>Email: demo@example.com</p>
             <p>Password: demo12345</p>
+            <p className="text-xs text-secondary mt-2">These demo credentials are seeded when you run <code>npm run db:setup</code>.</p>
           </div>
         </div>
       </div>

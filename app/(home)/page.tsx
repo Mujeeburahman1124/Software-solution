@@ -39,7 +39,7 @@ export default function HomePage() {
             id: '1',
             title: 'Getting Started with Next.js 14',
             excerpt: 'Learn the basics of Next.js 14 and how to build modern web applications.',
-            coverImage: '/blog-1.jpg',
+            coverImage: '/blog-1.svg',
             category: 'Technology',
             author: 'John Doe',
             createdAt: new Date().toISOString(),

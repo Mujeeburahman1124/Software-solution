@@ -39,6 +39,7 @@ export default function CreateBlogPage() {
     category: 'Technology',
     coverImage: '',
     tags: '',
+    published: true,
   })
   const [imagePreview, setImagePreview] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -79,8 +80,7 @@ export default function CreateBlogPage() {
     return div.textContent || div.innerText || ''
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const submitBlog = async (published: boolean) => {
     setLoading(true)
     setError('')
     setSuccess(false)
@@ -90,12 +90,14 @@ export default function CreateBlogPage() {
       setLoading(false)
       return
     }
+
     const textContent = getTextContent(formData.content)
     if (!textContent.trim() || textContent.length < 50) {
       setError('Blog content must be at least 50 characters')
       setLoading(false)
       return
     }
+
     if (!formData.coverImage) {
       setError('Cover image is required. Please upload an image.')
       setLoading(false)
@@ -110,12 +112,14 @@ export default function CreateBlogPage() {
         category: formData.category,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
         excerpt: textContent.substring(0, 150) + '...',
+        published,
       })
 
       setSuccess(true)
       setTimeout(() => {
-        if (response.id) {
-          router.push(`/blog/${response.id}`)
+        const blogId = response.id || (response.blog as { id?: string })?.id
+        if (blogId) {
+          router.push(`/blog/${blogId}`)
         } else {
           router.push('/')
         }
@@ -126,6 +130,16 @@ export default function CreateBlogPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await submitBlog(true)
+  }
+
+  const handleSaveDraft = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    await submitBlog(false)
   }
 
   const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('token')
@@ -276,18 +290,19 @@ export default function CreateBlogPage() {
             {/* Submit Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button
+                type="button"
+                onClick={handleSaveDraft}
+                disabled={loading}
+                className="btn-secondary disabled:opacity-50 flex-1 sm:flex-initial"
+              >
+                {loading ? '🔄 Saving Draft...' : '💾 Save Draft'}
+              </button>
+              <button
                 type="submit"
                 disabled={loading}
                 className="btn-primary disabled:opacity-50 flex-1 sm:flex-initial"
               >
                 {loading ? '🔄 Publishing...' : '📝 Publish Blog'}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="btn-secondary flex-1 sm:flex-initial"
-              >
-                ← Cancel
               </button>
             </div>
           </form>
