@@ -108,6 +108,9 @@ export default function LoginPage() {
                 Create one now
               </Link>
             </p>
+            <p className="text-center text-xs text-secondary mt-4">
+              Admin access is role-based and requires an existing admin account. Signup creates a standard creator account.
+            </p>
           </form>
 
           {/* Demo credentials info */}

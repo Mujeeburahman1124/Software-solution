@@ -64,7 +64,7 @@ export default function SignupPage() {
       )
 
       if (response?.success) {
-        router.push('/auth/login?registered=true')
+        router.push('/admin')
       } else {
         setError(response?.message || 'Signup failed')
       }
@@ -142,7 +142,7 @@ export default function SignupPage() {
                 placeholder="••••••••"
                 required
               />
-              <p className="text-xs text-secondary mt-1">Minimum 6 characters</p>
+              <p className="text-xs text-secondary mt-1">Minimum 8 characters, including uppercase, lowercase, and a number</p>
             </div>
 
             <div className="mb-6">
