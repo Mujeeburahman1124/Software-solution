@@ -2,6 +2,7 @@ import { Pool, PoolClient } from 'pg'
 
 // Prevent multiple instances of pg pool in development
 declare global {
+  // eslint-disable-next-line no-var
   var _pgPool: Pool | undefined
 }
 

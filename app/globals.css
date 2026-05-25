@@ -79,3 +79,122 @@
 .fade-in {
   animation: fadeIn 0.3s ease-in;
 }
+
+/* Blog Rich Text Content Styles */
+.blog-rich-content {
+  font-size: 1.125rem;
+  line-height: 1.9;
+  color: #374151;
+}
+
+.blog-rich-content h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.blog-rich-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.blog-rich-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.blog-rich-content p {
+  margin-bottom: 1.25rem;
+}
+
+.blog-rich-content ul,
+.blog-rich-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.blog-rich-content ul {
+  list-style-type: disc;
+}
+
+.blog-rich-content ol {
+  list-style-type: decimal;
+}
+
+.blog-rich-content li {
+  margin-bottom: 0.4rem;
+}
+
+.blog-rich-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.blog-rich-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  background: #eff6ff;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #1e40af;
+  font-style: italic;
+}
+
+.blog-rich-content pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.blog-rich-content code {
+  background: #f1f5f9;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  color: #be185d;
+}
+
+.blog-rich-content pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.blog-rich-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.blog-rich-content strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.blog-rich-content em {
+  font-style: italic;
+}
+
+.blog-rich-content iframe,
+.blog-rich-content video {
+  max-width: 100%;
+  margin: 1.5rem 0;
+  border-radius: 0.75rem;
+}

@@ -43,11 +43,12 @@ export default function Header() {
           <Link href="/#blogs" className="text-secondary hover:text-primary transition font-medium">
             All Blogs
           </Link>
+          <Link href="/create" className="text-secondary hover:text-primary transition font-medium">
+            Write
+          </Link>
+          
           {mounted && user ? (
             <>
-              <Link href="/create" className="text-secondary hover:text-primary transition font-medium">
-                Write
-              </Link>
               <Link href="/admin" className="text-secondary hover:text-primary transition font-medium">
                 Dashboard
               </Link>
@@ -70,12 +71,14 @@ export default function Header() {
                 </button>
               </div>
             </>
-          ) : (
+          ) : mounted ? (
             <>
               <Link href="/auth/login" className="btn-primary text-sm">
                 Sign In
               </Link>
             </>
+          ) : (
+            <div className="w-20 h-8"></div>
           )}
         </div>
 

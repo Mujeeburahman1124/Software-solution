@@ -1,14 +1,39 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import { apiClient } from '@/lib/api-client'
 import Link from 'next/link'
+import 'react-quill/dist/quill.snow.css'
+
+// Dynamically import ReactQuill to avoid SSR issues
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['blockquote', 'code-block'],
+    ['link', 'image', 'video'],
+    ['clean'],
+  ],
+}
+
+const quillFormats = [
+  'header', 'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet', 'blockquote', 'code-block',
+  'link', 'image', 'video',
+]
+
+const CATEGORIES = ['Technology', 'Development', 'Business', 'Design', 'Marketing']
 
 export default function EditBlogPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -16,12 +41,13 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
     coverImage: '',
     published: false,
   })
+  const [imagePreview, setImagePreview] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
   useEffect(() => {
-    // Check authentication
     const token = localStorage.getItem('token')
     const userData = apiClient.getUser()
     if (!token || !userData) {
@@ -35,7 +61,6 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
         const response = await apiClient.getBlog(params.id)
         if (response.blog) {
           const blog = response.blog as any
-          // Check ownership or admin status
           const isOwner = blog.authorId === currentUser.id
           const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN'
 
@@ -51,6 +76,10 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
             coverImage: blog.coverImage || '',
             published: blog.published ?? false,
           })
+          // Set image preview from existing cover image
+          if (blog.coverImage) {
+            setImagePreview(blog.coverImage)
+          }
         } else {
           setError('Blog post not found')
         }
@@ -69,18 +98,33 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleContentChange = (value: string) => {
+    setFormData(prev => ({ ...prev, content: value }))
   }
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked,
-    }))
+    setFormData(prev => ({ ...prev, [name]: checked }))
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file must be smaller than 5MB')
+      return
+    }
+    setError('')
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64 = reader.result as string
+      setFormData(prev => ({ ...prev, coverImage: base64 }))
+      setImagePreview(base64)
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,7 +134,6 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
     setSuccess(false)
 
     try {
-      // Validations
       if (!formData.title.trim()) {
         setError('Blog title is required')
         setSaving(false)
@@ -101,13 +144,8 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
         setSaving(false)
         return
       }
-      if (formData.content.length < 100) {
-        setError('Blog content must be at least 100 characters')
-        setSaving(false)
-        return
-      }
-      if (!formData.coverImage.trim()) {
-        setError('Cover image URL is required')
+      if (!formData.coverImage) {
+        setError('Cover image is required')
         setSaving(false)
         return
       }
@@ -121,8 +159,6 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
       })
 
       setSuccess(true)
-
-      // Redirect after 1.5 seconds
       setTimeout(() => {
         router.push('/admin')
       }, 1500)
@@ -179,20 +215,20 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
             <p className="text-secondary">Update your blog details and content</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="card">
+          <form onSubmit={handleSubmit} className="card space-y-6">
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 ❌ {error}
               </div>
             )}
-
             {success && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm">
                 ✅ Blog updated successfully! Redirecting to dashboard...
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+            {/* Title + Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-primary mb-2">
                   Blog Title <span className="text-red-500">*</span>
@@ -208,7 +244,6 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
                 />
                 <p className="text-xs text-secondary mt-1">{formData.title.length}/500</p>
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-primary mb-2">
                   Category <span className="text-red-500">*</span>
@@ -220,49 +255,68 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
                   className="input-field"
                   required
                 >
-                  <option value="Technology">Technology</option>
-                  <option value="Development">Development</option>
-                  <option value="Business">Business</option>
-                  <option value="Design">Design</option>
-                  <option value="Marketing">Marketing</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            <div className="mb-6">
+            {/* Cover Image File Upload */}
+            <div>
               <label className="block text-sm font-semibold text-primary mb-2">
-                Cover Image URL <span className="text-red-500">*</span>
+                Cover Image <span className="text-red-500">*</span>
               </label>
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {imagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="Cover preview"
+                      className="w-full h-48 object-cover rounded-lg mb-3"
+                    />
+                    <p className="text-sm text-accent font-semibold">✓ Image loaded — click to change</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-4xl mb-3">🖼️</div>
+                    <p className="font-semibold text-primary">Click to upload cover image</p>
+                    <p className="text-xs text-secondary mt-1">PNG, JPG, WEBP — max 5MB</p>
+                  </>
+                )}
+              </div>
               <input
-                type="url"
-                name="coverImage"
-                value={formData.coverImage}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="https://example.com/image.jpg"
-                required
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
               />
-              <p className="text-xs text-secondary mt-1">Provide a direct image URL</p>
             </div>
 
-            <div className="mb-6">
+            {/* Rich Text Editor */}
+            <div>
               <label className="block text-sm font-semibold text-primary mb-2">
                 Blog Content <span className="text-red-500">*</span>
               </label>
-              <textarea
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                className="textarea-field h-64 lg:h-80"
-                placeholder="Write your blog content here... (Markdown supported)"
-                required
-              />
-              <p className="text-xs text-secondary mt-1">
-                {formData.content.length} characters (minimum 100)
-              </p>
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.content}
+                  onChange={handleContentChange}
+                  modules={quillModules}
+                  formats={quillFormats}
+                  placeholder="Edit your blog content here..."
+                  style={{ minHeight: '320px' }}
+                />
+              </div>
             </div>
 
-            <div className="mb-8 flex items-center gap-3 bg-light p-4 rounded-lg">
+            {/* Publish Toggle */}
+            <div className="flex items-center gap-3 bg-light p-4 rounded-lg">
               <input
                 type="checkbox"
                 name="published"
@@ -276,6 +330,7 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
               </label>
             </div>
 
+            {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 type="submit"
@@ -284,7 +339,6 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
               >
                 {saving ? '🔄 Saving Changes...' : '💾 Save Changes'}
               </button>
-
               <Link
                 href="/admin"
                 className="btn-secondary flex-1 sm:flex-initial text-center font-semibold"
@@ -296,6 +350,30 @@ export default function EditBlogPage({ params }: { params: { id: string } }) {
         </div>
       </div>
       <Footer />
+
+      <style jsx global>{`
+        .ql-container {
+          font-size: 1rem;
+          min-height: 280px;
+          font-family: inherit;
+        }
+        .ql-editor {
+          min-height: 280px;
+          line-height: 1.8;
+        }
+        .ql-toolbar {
+          background: #f8fafc;
+          border-bottom: 1px solid #e2e8f0 !important;
+          border-radius: 0;
+        }
+        .ql-container.ql-snow {
+          border: none !important;
+        }
+        .ql-toolbar.ql-snow {
+          border: none !important;
+          border-bottom: 1px solid #e2e8f0 !important;
+        }
+      `}</style>
     </>
   )
 }

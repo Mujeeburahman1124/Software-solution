@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import { apiClient } from '@/lib/api-client'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 
 interface BlogDetail {
   id: string
@@ -212,8 +210,10 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
     )
   }
 
-  // Calculate reading time based on 200 words per minute
-  const wordCount = blog?.content ? blog.content.trim().split(/\s+/).length : 0
+  // Calculate reading time based on 200 words per minute (strip HTML tags for accuracy)
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, ' ')
+  const plainText = blog?.content ? stripHtml(blog.content) : ''
+  const wordCount = plainText.trim().split(/\s+/).filter(Boolean).length
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
 
   return (
@@ -275,13 +275,12 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Markdown Content */}
+        {/* Rich Text Content */}
         <div className="max-w-4xl mx-auto px-0 mb-12 sm:mb-16">
-          <div className="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed break-words markdown-content">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {blog.content}
-            </ReactMarkdown>
-          </div>
+          <div
+            className="prose prose-lg max-w-none text-gray-700 leading-relaxed blog-rich-content"
+            dangerouslySetInnerHTML={{ __html: blog.content }}
+          />
         </div>
 
         {/* Reactions & Bookmark Section */}
