@@ -1,4 +1,5 @@
 import { storage } from './utils'
+import type { User } from '@/models'
 
 // Use relative URL in browser to avoid CORS/port issues, absolute in SSR
 const API_BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
@@ -8,12 +9,12 @@ interface ApiResponse<T> {
   message?: string
   error?: string
   token?: string
-  user?: any
+  user?: User
   blog?: T
   blogs?: T[]
   id?: string
-  comments?: any[]
-  comment?: any
+  comments?: unknown[]
+  comment?: unknown
   isBookmarked?: boolean
 }
 
@@ -63,8 +64,6 @@ class ApiClient {
 
       return data
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred'
-      console.error('API Error:', message)
       throw error
     }
   }
@@ -73,14 +72,14 @@ class ApiClient {
     return this.request<T>(endpoint, { method: 'GET' })
   }
 
-  async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, body: Record<string, unknown>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
     })
   }
 
-  async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body: Record<string, unknown>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),
@@ -115,8 +114,8 @@ class ApiClient {
     return !!this.getToken()
   }
 
-  getUser() {
-    return storage.get('user')
+  getUser(): User | null {
+    return storage.get('user') as User | null
   }
 
   // Blog methods
@@ -135,11 +134,11 @@ class ApiClient {
     return this.get(`/blogs/${id}`)
   }
 
-  async createBlog(blog: any) {
+  async createBlog(blog: Record<string, unknown>) {
     return this.post('/blogs', blog)
   }
 
-  async updateBlog(id: string, blog: any) {
+  async updateBlog(id: string, blog: Record<string, unknown>) {
     return this.put(`/blogs/${id}`, blog)
   }
 

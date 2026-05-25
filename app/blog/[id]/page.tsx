@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import { apiClient } from '@/lib/api-client'
+import type { User } from '@/models'
 
 interface BlogDetail {
   id: string
@@ -40,7 +41,7 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
   const [newComment, setNewComment] = useState('')
   const [guestName, setGuestName] = useState('')
   const [commentSaving, setCommentSaving] = useState(false)
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   // Reactions State
   const [reactions, setReactions] = useState({
@@ -71,61 +72,51 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
   }, [])
 
   useEffect(() => {
-    // Get user details if logged in
-    if (apiClient.isAuthenticated()) {
-      setCurrentUser(apiClient.getUser())
-      fetchBookmarkStatus()
+    const loadPage = async () => {
+      if (apiClient.isAuthenticated()) {
+        setCurrentUser(apiClient.getUser() as User)
+        try {
+          const bookmarkResponse = await apiClient.getBookmarkStatus(params.id)
+          setIsBookmarked(bookmarkResponse.isBookmarked ?? false)
+        } catch {
+          // bookmark status is optional and not critical for page render
+        }
+      }
+
+      try {
+        setLoading(true)
+        setError('')
+        const response = await apiClient.getBlog(params.id)
+        if (response.blog) {
+          const blogData = response.blog as BlogDetail
+          setBlog(blogData)
+          setReactions({
+            likes: blogData.likes || 0,
+            loves: blogData.loves || 0,
+            claps: blogData.claps || 0,
+            fires: blogData.fires || 0
+          })
+        } else {
+          setError('Blog post not found')
+        }
+      } catch {
+        setError('Failed to load blog article')
+      } finally {
+        setLoading(false)
+      }
+
+      try {
+        const response = await apiClient.getComments(params.id)
+        if (response.comments) {
+          setComments(response.comments as CommentItem[])
+        }
+      } catch {
+        // ignore comments fetch failures for now
+      }
     }
 
-    fetchBlogData()
-    fetchComments()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadPage()
   }, [params.id])
-
-  const fetchBookmarkStatus = async () => {
-    try {
-      const res = await apiClient.getBookmarkStatus(params.id)
-      setIsBookmarked(res.isBookmarked ?? false)
-    } catch (err) {
-      console.error('Error fetching bookmark status:', err)
-    }
-  }
-
-  const fetchBlogData = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const response = await apiClient.getBlog(params.id)
-      if (response.blog) {
-        const blogData = response.blog as BlogDetail
-        setBlog(blogData)
-        setReactions({
-          likes: blogData.likes || 0,
-          loves: blogData.loves || 0,
-          claps: blogData.claps || 0,
-          fires: blogData.fires || 0
-        })
-      } else {
-        setError('Blog post not found')
-      }
-    } catch (err) {
-      console.error('Error fetching blog:', err)
-      setError('Failed to load blog article')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchComments = async () => {
-    try {
-      const response = await apiClient.getComments(params.id)
-      if (response.comments) {
-        setComments(response.comments as CommentItem[])
-      }
-    } catch (err) {
-      console.error('Error fetching comments:', err)
-    }
-  }
 
   const handleReact = async (type: 'likes' | 'loves' | 'claps' | 'fires') => {
     try {
@@ -135,8 +126,8 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
         [type]: prev[type] + 1
       }))
       await apiClient.reactToBlog(params.id, type)
-    } catch (err) {
-      console.error('Error adding reaction:', err)
+    } catch {
+      // Ignore reaction updates if the request fails
     }
   }
 
@@ -149,8 +140,8 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
       setBookmarkLoading(true)
       const res = await apiClient.toggleBookmark(params.id, isBookmarked)
       setIsBookmarked(res.isBookmarked ?? false)
-    } catch (err) {
-      console.error('Error toggling bookmark', err)
+    } catch {
+      alert('Unable to update bookmark status. Please try again.')
     } finally {
       setBookmarkLoading(false)
     }
@@ -168,8 +159,7 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
         setNewComment('')
         setGuestName('')
       }
-    } catch (err) {
-      console.error('Error posting comment:', err)
+    } catch {
       alert('Failed to add comment. Please try again.')
     } finally {
       setCommentSaving(false)

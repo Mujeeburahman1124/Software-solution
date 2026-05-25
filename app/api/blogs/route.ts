@@ -183,9 +183,7 @@ export async function GET(request: Request) {
         success: true,
         blogs: filteredBlogs,
         total: filteredBlogs.length,
-        message: 'Using demo data - database not available',
-        actualError: String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        message: 'Using demo data - database not available'
       },
       { status: 200 }
     )

@@ -23,37 +23,36 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
 
   useEffect(() => {
-    fetchBlogs()
-  }, [])
-
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const response = await apiClient.getBlogs(searchQuery, selectedCategory)
-      const blogsList = response.blogs || response.data || []
-      setBlogs(Array.isArray(blogsList) ? blogsList : [])
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load blogs'
-      setError(message)
-      console.error('Error fetching blogs:', error)
-      // Show sample data on error
-      setBlogs([
-        {
-          id: '1',
-          title: 'Getting Started with Next.js 14',
-          excerpt: 'Learn the basics of Next.js 14 and how to build modern web applications.',
-          coverImage: '/blog-1.jpg',
-          category: 'Technology',
-          author: 'John Doe',
-          createdAt: new Date().toISOString(),
-          views: 1250,
-        },
-      ])
-    } finally {
-      setLoading(false)
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const response = await apiClient.getBlogs(searchQuery, selectedCategory)
+        const blogsList = response.blogs || response.data || []
+        setBlogs(Array.isArray(blogsList) ? blogsList : [])
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load blogs'
+        setError(message)
+        // Show sample data on error
+        setBlogs([
+          {
+            id: '1',
+            title: 'Getting Started with Next.js 14',
+            excerpt: 'Learn the basics of Next.js 14 and how to build modern web applications.',
+            coverImage: '/blog-1.jpg',
+            category: 'Technology',
+            author: 'John Doe',
+            createdAt: new Date().toISOString(),
+            views: 1250,
+          },
+        ])
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    fetchBlogs()
+  }, [searchQuery, selectedCategory])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -62,10 +61,6 @@ export default function HomePage() {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
   }
-
-  useEffect(() => {
-    fetchBlogs()
-  }, [searchQuery, selectedCategory])
 
   const filteredBlogs = blogs.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

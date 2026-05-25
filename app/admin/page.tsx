@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
+import type { User } from '@/models'
 
 interface BlogItem {
   id: string
@@ -20,25 +21,13 @@ interface BlogItem {
 export default function AdminDashboard() {
   const router = useRouter()
   const [blogs, setBlogs] = useState<BlogItem[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Check authentication and load user data
-    const token = localStorage.getItem('token')
-    const userData = apiClient.getUser()
-    if (!token || !userData) {
-      router.push('/auth/login')
-      return
-    }
-    setUser(userData)
-    fetchBlogs(userData)
-  }, [router])
-
-  const fetchBlogs = async (currentUser = user) => {
+  const fetchBlogs = useCallback(async (currentUser: User | null) => {
     if (!currentUser) return
     try {
       setLoading(true)
@@ -56,11 +45,22 @@ export default function AdminDashboard() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load blogs'
       setError(message)
-      console.error('Error fetching blogs:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    // Check authentication and load user data
+    const token = localStorage.getItem('token')
+    const userData = apiClient.getUser() as User | null
+    if (!token || !userData) {
+      router.push('/auth/login')
+      return
+    }
+    setUser(userData)
+    fetchBlogs(userData)
+  }, [router, fetchBlogs])
 
   const handleDelete = async (id: string) => {
     try {
@@ -70,7 +70,6 @@ export default function AdminDashboard() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete blog'
       alert(message)
-      console.error('Error deleting blog:', error)
     }
   }
 
