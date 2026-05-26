@@ -136,6 +136,7 @@ export default function HomePage() {
             <option value="Development">Development</option>
             <option value="Business">Business</option>
             <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
           </select>
         </div>
 
@@ -183,6 +184,8 @@ export default function HomePage() {
                       <img 
                         src={blog.coverImage} 
                         alt={blog.title} 
+                        loading="lazy"
+                        onError={({ currentTarget }) => { currentTarget.src = '/blog-fallback.svg' }}
                         className="w-full h-full object-cover"
                       />
                     ) : (

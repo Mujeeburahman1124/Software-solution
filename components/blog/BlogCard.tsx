@@ -29,10 +29,19 @@ export default function BlogCard({
     <Link href={`/blog/${id}`}>
       <article className={`card cursor-pointer group transition-all ${featured ? 'md:col-span-2 md:row-span-2' : ''}`}>
         <div className={`overflow-hidden rounded-lg mb-4 bg-gray-200 group-hover:scale-105 transition-transform duration-300 ${featured ? 'h-64' : 'h-48'}`}>
-          <div className="w-full h-full bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center">
-            <span className={`text-white ${featured ? 'text-7xl' : 'text-4xl'}`}>📰</span>
-          </div>
-        </div>
+          {coverImage ? (
+            <img
+              src={coverImage}
+              alt={title}
+              loading="lazy"
+              onError={({ currentTarget }) => { currentTarget.src = '/blog-fallback.svg' }}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center">
+              <span className={`text-white ${featured ? 'text-7xl' : 'text-4xl'}`}>📰</span>
+            </div>
+          )}
 
         <div className="flex gap-2 mb-3">
           <span className="badge text-xs bg-accent text-white">{category}</span>

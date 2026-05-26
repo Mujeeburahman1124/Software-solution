@@ -341,7 +341,7 @@ async function setupDatabase() {
             blog.category,
             adminUserId,
             adminName,
-            JSON.stringify(blog.tags),
+            blog.tags,
             blog.views,
             blog.published,
             blog.likes,

@@ -40,3 +40,7 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+
+# Build artifacts
+tsconfig.tsbuildinfo
+build-output.txt

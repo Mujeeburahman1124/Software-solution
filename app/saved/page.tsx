@@ -125,6 +125,8 @@ export default function SavedBlogsPage() {
                         <img 
                           src={blog.coverImage} 
                           alt={blog.title} 
+                          loading="lazy"
+                          onError={({ currentTarget }) => { currentTarget.src = '/blog-fallback.svg' }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (

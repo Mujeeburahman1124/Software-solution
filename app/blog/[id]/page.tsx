@@ -255,6 +255,8 @@ export default function BlogDetailPage({ params }: { params: { id: string } }) {
               <img
                 src={blog.coverImage}
                 alt={blog.title}
+                loading="lazy"
+                onError={({ currentTarget }) => { currentTarget.src = '/blog-fallback.svg' }}
                 className="w-full h-full object-cover"
               />
             ) : (
