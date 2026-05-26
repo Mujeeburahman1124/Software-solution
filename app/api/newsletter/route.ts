@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { query } from '@/lib/db'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -14,22 +14,33 @@ export async function POST(request: Request) {
       )
     }
 
-    const existing = await prisma.newsletterSubscription.findUnique({
-      where: { email: email.toLowerCase() },
-    })
+    const emailLower = email.toLowerCase()
 
-    if (existing) {
+    // Create table if it doesn't exist (since it wasn't in db-setup.js)
+    await query(`
+      CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `)
+
+    const existing = await query(
+      'SELECT id FROM newsletter_subscriptions WHERE email = $1',
+      [emailLower]
+    )
+
+    if (existing.rows.length > 0) {
       return NextResponse.json(
         { success: true, message: 'You are already subscribed to the newsletter' },
         { status: 200 }
       )
     }
 
-    await prisma.newsletterSubscription.create({
-      data: {
-        email: email.toLowerCase(),
-      },
-    })
+    await query(
+      'INSERT INTO newsletter_subscriptions (email) VALUES ($1)',
+      [emailLower]
+    )
 
     return NextResponse.json(
       { success: true, message: 'Subscription successful' },
