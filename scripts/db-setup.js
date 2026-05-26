@@ -75,7 +75,7 @@ async function setupDatabase() {
       ALTER TABLE blogs ADD COLUMN IF NOT EXISTS fires INTEGER DEFAULT 0;
     `)
     await client.query(`
-      ALTER TABLE blogs ALTER COLUMN IF EXISTS "coverImage" TYPE TEXT;
+      ALTER TABLE blogs ALTER COLUMN "coverImage" TYPE TEXT;
     `)
     console.log('✓ Blogs table columns updated')
 
